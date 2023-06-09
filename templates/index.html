@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title>Daily planner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles.css">
+
+</head>
+<body>
+  <div class="header">
+      <p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-calendar-check" viewBox="0 0 16 16" style="position:absolute;left:60px;top:20px;">
+  <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+  <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+</svg><h3 style="position:absolute;top:15px; left:100px;">Task-e</h3></p>
+    {% if not current_user.is_authenticated %}
+      <a href="{{url_for('login')}}"> <div style="background:#00C6AE; text-align:center;border-radius:5px; width:7%;position:absolute;top:20px; right:240px;"><button style="color:white; background:#00C6AE; height:20px; font-size:14px;" type="submit" class="but">Login</button></div></a>
+
+
+          <a style="position:absolute;top:20px; right:160px;text-decoration: none; color:#00C6AE;" href="{{url_for('register')}}">Sign up</a>
+    {% else %}
+          <a style="position:absolute;top:20px; right:80px;text-decoration: none; color:#00C6AE;" href="{{url_for('logout')}}">Log out</a>
+    {% endif %}
+  </div>
+
+ <div style="display:flex; padding: 40px;">
+    <div class="card" style="padding:0px;background:#402C54;">
+
+  <div class="profile-pic" style="margin:auto;position:relative;right:10px;" align="center">
+      {% if current_user.profile_img %}
+        <img class="photo" src="{{current_user.profile_img}}" alt="Avatar" align="center" width="140%" style="border-radius:50%;margin:auto;">
+     {% else %}
+  <img class="photo" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxbc_JCX_eHxaPo5RW-7Zweei0wNjhr_kk0w&usqp=CAU" alt="Avatar" align="center" width="140%" style="border-radius:50%;margin:auto;">
+    {% endif %}
+    <form action="/change" method="POST">
+    <a href="{{url_for('change')}}"><button type="submit" class="upload_btn">Change Profile</button></a>
+        </form>
+        </div>
+    {% if current_user.img_change == 1 %}
+        <form action="/profile" method="POST">
+        <div style="display:flex;">
+
+    <input type="text" placeholder="Enter img url" name="pic" >
+        <a href="{{url_for('profile', id=current_user.id)}}"> <div style="background:#402C54; text-align:center;border-radius:15px; width:90px;"><button style="color:white; background:#402C54; height:20px; font-size:12px;" type="submit" class="but">Change</button></div></a>
+
+        </div></form>
+        {% endif %}
+  <div class="container" style="padding:20px;background:white;border-radius:5px;">
+
+   {% if current_user.is_authenticated %}
+    <h4><b>{{current_user.name}}</b></h4>
+    <p>Level: {{current_user.level}}</p>
+      <div class="level_upper">
+          <div class="level" style="width:{{current_user.xp * 10 / (current_user.level)}}%">
+
+      </div>
+      </div>
+       <p>{{current_user.xp}} xp <br> Tasks completed: {{current_user.task_no}}</p>
+
+    {% else %}
+      <h4><b>Guest</b></h4>
+    <p>Level</p>
+      <p style="margin-top:10px;">Tasks completed:</p>
+     {% endif %}
+  </div>
+</div>
+
+  <div class="card" style="overflow-x: hidden;overflow-y: auto;">
+  <div class="container">
+    <h4 align="center" style="padding-bottom:15px;">Tasks</h4>
+    <div class="task-box">
+    <form action="/add" method="POST">
+    <input type="text" placeholder="Enter task" name="task" required>
+    <label style="color:grey;">Due-date:</label>
+      <input style="position:absolute; right:160px; width: 30%;" type="date" id="day" name="due" value="{{today}}">
+      <a href="{{url_for('add')}}"> <div style="background:#602475; text-align:center;border-radius:15px; width:90px;"><button style="color:white; background:#602475; height:20px; font-size:12px;" type="submit" class="but">Add task</button></div></a>
+
+        </form>
+        </div>
+
+      {% for i in tasks %}
+      {% if i.task_id == current_user.id and i.complete == 0 %}
+
+    <div class="task-box">
+        <p>{{i.task_to_do}}
+        {{i.due}}</p>
+
+        <div class="mini-task">
+        <p><a href="{{url_for('delete', id=i.id)}}"><div style="background:#D19286; text-align:center;border-radius:15px; width:90px; margin:10px;"><button style="background:#D19286; color:#402C54; height:20px; font-size:10px;" type="submit"  class="but"><b>Delete</b></button></div></a>
+        <a href="{{url_for('complete', id=i.id)}}"><div style="background:#73C78F; text-align:center;border-radius:15px; width:90px; margin:10px;"><button style="background:#73C78F; color:#402C54; height:20px; font-size:10px;" type="submit"  class="but"><b>Complete</b></button></div></a>
+</p>
+            </div>
+        </div>
+
+        {% endif %}
+      {% endfor %}
+
+      <p></p>
+  </div>
+</div>
+
+  <div class="card" style="overflow-x: hidden;overflow-y: auto;">
+  <div class="container">
+    <h4 align="center" style="padding-bottom:15px;" >Tasks completed</h4>
+
+    {% for i in tasks[0:8] %}
+      {% if i.task_id == current_user.id and i.complete == 1 %}
+
+
+    <div class="task-box">
+    {{i.task_to_do}}
+        <a href="{{url_for('delete', id=i.id)}}"><p style="position:absolute; left:400px;color:red;"> - </p></a>
+        <div style="display:flex;">
+        <p style="font-size: 15px;color:grey;">Completed on: {{i.complete_date}}</p>
+        <p >✔️</p>
+            </div>
+        </div>
+
+
+    {% endif %}
+      {% endfor %}
+      <p></p>
+  </div>
+    </div>
+
+
+
+
+
+
+
+</div>
+<script>
+
+</script>
+
+
+</body>
+
+</html>
