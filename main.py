@@ -120,15 +120,18 @@ def login():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
-    if request.method == 'POST':
-        new_task = Tasks()
-        new_task.task_to_do = request.form['task']
-        new_task.task_id = current_user.id
-        new_task.due = request.form['due']
-        db.session.add(new_task)
-        db.session.commit()
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    elif current_user.is_authenticated:
+        if request.method == 'POST':
+            new_task = Tasks()
+            new_task.task_to_do = request.form['task']
+            new_task.task_id = current_user.id
+            new_task.due = request.form['due']
+            db.session.add(new_task)
+            db.session.commit()
         return redirect(url_for("home"))
-    return render_template('home')
+    return render_template("home")
 
 @app.route('/logout')
 def logout():
